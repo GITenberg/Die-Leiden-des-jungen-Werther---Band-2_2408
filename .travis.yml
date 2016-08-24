@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: NRQA55H1y/GW7/H43L5BAV4DkdAvCL5zhcbJeRdn+42pIAQ0WeIptqY3esTjvVz/4j0cWYcFZuV65xC/Egql3c07rq1b3quEczin2+e1JpS+ikirwTs3H1usx/biE+k3Wa0u9SEYxtv794Hh0ccYoUv+SUGyW+apialovx3Jtgpg8RIAcMq/KFy7QysKZL4EfggHQHmGH3TL81P7tibnBdhLwuZoNB8Y/ThSme2SfmLIAz4Yl7aBKAU6XT6gfq0t5aHzEsojTm1nowlFZsJbfkeqQ+GcfKODaVfn958we5qiboFoNIcyh1QnrFzaDK+n0rPVEZI3kZ7vH60RFMvbzic7vr53KboTuEmBBZnwRRaayOghekOEpW1qIBu83dJlKOs7WVYBxFmaSjtBmDJJtCl0Q1Xv3Fnmffah3wG8PJQiRye7764UZGjiMaLSZVIcAK6Vp53loaPVvicNydEENpTfChrVDiwplWewmi2Do6FkpW5rtzsD2uyxBGw1KsECK02SQSbAs882FZbAGv3ed3UQNTGWd98F+uBFl46CueKn73I3El7XQeZ/CXXp79cRT/Ol4rhrik13j7p1SC7Wy4JQ1S0R+FS0QQav67iDpaPhuOskOj2p9ITNyHtiEDwD1+kQJxRmftsj7E5J4c/KF0wJSwaX/cD4r+yOhN/zxac=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Die-Leiden-des-jungen-Werther---Band-2_2408
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
